@@ -1,17 +1,11 @@
-FROM docker.io/library/caddy:2.8.4-alpine
+FROM docker.io/library/python:3.12-alpine
 
-RUN apk add --no-cache git fcgiwrap spawn-fcgi
-
-RUN adduser -D -h /git git \
-    && mkdir -p /git/repos && chown -R git:git /git \
-    && mkdir -p /run/fcgiwrap && chown git:git /run/fcgiwrap
-
-COPY Caddyfile /etc/caddy/Caddyfile
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+RUN apk add --no-cache git-daemon
+RUN adduser -D -h /git git && mkdir -p /git/repos && chown -R git:git /git
+COPY app.py /user/local/bin/app.py
 
 EXPOSE 80
 VOLUME ["/git/repos"]
 
 USER git
-ENTRYPOINT ["/start.sh"]
+CMD ["python", "/user/local/bin/app.py"]
